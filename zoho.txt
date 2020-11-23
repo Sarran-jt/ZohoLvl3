@@ -1,0 +1,286 @@
+import java.util.*;
+
+public class GiftCard{
+    ArrayList<customer> c = new ArrayList<customer>();
+    ArrayList<card> g = new ArrayList<card>();
+    ArrayList<purchase> k = new ArrayList<purchase>();
+    Scanner in = new Scanner(System.in);
+    static int id=1;
+    static int card=1;
+    static int tid=1;
+    public void show(){
+        System.out.println("1. Create Customer");
+        System.out.println("2. Show Customer Summary");
+        System.out.println("3. Create Gift Card");
+        System.out.println("4. Show Gift Card Summary");
+        System.out.println("5. TopUp Gift Card");
+        System.out.println("6. Close Gift Card");
+        System.out.println("7. Purchase Item");
+        System.out.println("8. Purchase Summary");
+        System.out.println("9. Card Block/UnBlock");
+        System.out.println("-1. EXIT");
+        GiftCard o = new GiftCard();
+        int ch = in.nextInt();
+        switch(ch){
+            case 1:{
+                System.out.println("Enter Customer Name:");
+                String n = in.next();
+                System.out.println("Enter Mobile No:");
+                String m = in.next();
+                System.out.println("Enter the Balance:");
+                int b = in.nextInt();
+                customer t = new customer(n,m,b,id);
+                c.add(t);
+                id++;
+                System.out.println("Customer ID \t Balance");
+                System.out.println(t.id + "\t\t" + t.balance);
+                show();   
+            }
+            case 2:{
+                customerSummary();
+                show();
+            }
+            case 3:{
+                System.out.println("Enter your Customer ID:");
+                int id = in.nextInt();
+                System.out.println("Set Your PIN number");
+                int p = in.nextInt();
+                System.out.println("Enter Giftcard Amount:");
+                int a = in.nextInt();
+                for(customer x: c){
+                    if(x.id == id){
+                        if(x.balance < a){
+                            System.out.println("Insufficient Balance");
+                            show();
+                        }
+                        else{
+                            x.balance = x.balance - a;
+                        }
+                    }
+                }
+                card t = new card(card,id,a,p,"Working",0);
+                card++;
+                g.add(t);
+                System.out.println("Card No \t Customer NO \t PIN \t GiftCard Balance \t Status \t Reward");
+                System.out.println(t.card +"\t\t"+ t.cid +"\t\t"+ t.pin +"\t\t"+ t.balance +"\t\t"+ t.status +"\t\t"+ t.reward);
+                show();
+            }
+            case 4:{
+                System.out.println("Gift Card Summary:");
+                giftCardSummary();
+                show();
+            }
+            case 5:{
+                System.out.println("Enter gift Card Number:");
+                int n = in.nextInt();
+                System.out.println("Enter Amount to be topped up:");
+                int a = in.nextInt();
+                int cid;
+                for(card x: g){
+                    System.out.println(x.card);
+                    if(n == x.card && x.status == "Working"){
+                        cid = x.cid;
+                        for(customer y: c){
+                            if(cid == y.id){
+                                if(y.balance < a){
+                                    System.out.println("Insufficient Balance!");
+                                    show();
+                                }
+                                else{
+                                    y.balance = y.balance-a;
+                                    break;
+                                }
+                            }
+                        }
+                        x.balance = x.balance+a;
+                        System.out.println("Card No \t Customer NO \t PIN \t GiftCard Balance \t Status \t Reward");
+                        System.out.println(x.card +"\t\t"+ x.cid +"\t\t"+ x.pin +"\t\t"+ x.balance +"\t\t"+ x.status +"\t\t"+ x.reward);
+                        show();
+                    }
+                    else if(x.status == "Closed"){
+                        System.out.println("This card is closed");
+                        show();
+                    }
+                    else if(x.status == "Blocked"){
+                        System.out.println("This card is blocked");
+                        show();
+                    }
+                }
+                System.out.println("No Card with this card number is found!");
+                show();
+            }
+            case 6: {
+                System.out.println("Enter the gift card number:");
+                int n = in.nextInt();
+                System.out.println("Enter PIN:");
+                int p = in.nextInt();
+                for(card x: g){
+                    if(n==x.card){
+                        if(p==x.pin){
+                            for(customer y: c){
+                                if(x.cid == y.id){
+                                    y.balance+=x.balance;
+                                    x.balance=0;
+                                    break;
+                                }
+                            }
+                            x.status = "Closed";
+                            System.out.println("Gift Card Closed!");
+                            show();
+                        }
+                        else{
+                            System.out.println("Invalid PIN");
+                            show();
+                        }
+                    }
+                }
+                System.out.println("No card with that card No is found!");
+                show();
+            }
+            case 7:{
+                System.out.println("Enter Gift Card Number:");
+                int n = in.nextInt();
+                System.out.println("Enter the PIN");
+                int p = in.nextInt();
+                System.out.println("Enter the Amount of purchase:");
+                int a = in.nextInt();
+                for(card x: g){
+                    if(n==x.card){
+                        if(x.status == "Working"){
+                            if(p==x.pin){
+                                if(x.balance < a){
+                                    System.out.println("Insufficient Balance!");
+                                    show();
+                                }
+                                else{
+                                    if(a>=500){
+                                        x.reward+=(a/500)*50;
+                                    }
+                                    x.balance-=a;
+                                    purchase t = new purchase(tid,x.card,a);
+                                    tid++;
+                                    k.add(t);
+                                    System.out.println("Purchase Made!");
+                                    show();
+                                }
+                            }
+                            else{
+                                System.out.println("Invalid PIN");
+                                show();
+                            }
+                        }
+                        else if(x.status.equals("Closed")){
+                            System.out.println("This card is closed");
+                        }
+                        else{
+                            System.out.println("This card is blocked");
+                            show();
+                        }
+                    }
+                }
+                System.out.println("No card with that card No is found!");
+                show();
+            }
+            case 8:{
+                purchaseSummary();
+                show();
+            }
+            case 9:{
+                System.out.println("Enter the Card NO to Block/Unblock");
+                int n = in.nextInt();
+                System.out.println("Enter the PIN");
+                int p = in.nextInt();
+                for(card x: g){
+                    if(x.card == n){
+                        if(x.status == "Closed"){
+                            System.out.println("This card is closed");
+                            show();
+                        }
+                        if(x.pin == p){
+                            if(x.status == "Working"){
+                                x.status = "Blocked";
+                                System.out.println("Card Blocked!");
+                                show();
+                            }
+                            else{
+                                x.status = "Working";
+                                System.out.println("Card UnBlocked!");
+                                show();
+                            }
+                        }
+                        else{
+                            System.out.println("Invalid PIN");
+                            show();
+                        }
+                    }
+                }
+                System.out.println("NO card Found");
+                show();
+            }
+            case -1:{
+                System.exit(0);
+            }
+        }
+    }
+    public void customerSummary(){
+        System.out.println("Customer ID \t Balance");
+        for(customer x: c){
+            System.out.println(x.id + "\t\t" + x.balance);
+        }
+    }
+    public void giftCardSummary(){
+        System.out.println("Card No \t Customer NO \t PIN \t GiftCard Balance \t Status \t Reward");
+        for(card t: g){
+            System.out.println(t.card +"\t\t"+ t.cid +"\t\t"+ t.pin +"\t\t"+ t.balance +"\t\t"+ t.status +"\t\t"+ t.reward);
+        }
+    }
+    public void purchaseSummary(){
+        System.out.println("Txn NO \t Card No \t Amount");
+        for(purchase x: k){
+            System.out.println(x.tid +"\t\t"+ x.card +"\t\t"+ x.amount);
+        }
+    }
+    public static void main(String[] args){
+        GiftCard o = new GiftCard();
+        o.show();
+    }
+}
+class purchase{
+    int tid;
+    int card;
+    int amount;
+    purchase(int tid,int card,int amount){
+        this.tid=tid;
+        this.card=card;
+        this.amount=amount;
+    }
+}
+class card{
+    int cid;
+    int balance;
+    int pin;
+    String status;
+    int card;
+    int reward;
+    card(int card,int cid,int balance,int pin,String status,int reward){
+        this.cid=cid;
+        this.balance=balance;
+        this.pin=pin;
+        this.status = status;
+        this.card=card;
+        this.reward = reward;
+    }
+}
+class customer{
+    String Name;
+    String MobNo;
+    int balance;
+    int id;
+    
+    customer(String Name,String MobNo,int balance,int id){
+        this.Name = Name;
+        this.balance = balance;
+        this.MobNo = MobNo;
+        this.id=id;
+    }
+}
